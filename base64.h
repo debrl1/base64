@@ -4,10 +4,17 @@
 
 #include <stdint.h>
 
+
+/**
+ * Returns the amount of characters that will be in the base64 encoded string
+ * for a length with len `len`.
+ */
+unsigned int encodedlen(unsigned int len);
+
 /**
  * Encodes the given array of values into a base64 string.
  */
-unsigned char *base64encode(const uint8_t *original, unsigned int length);
+unsigned char *base64encode(const uint8_t *input, unsigned int length);
 
 /**
  * Decodes the given base64 string into the original array of values.
