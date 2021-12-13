@@ -5,7 +5,7 @@
 
 #define PADDING 0x40
 
-/**
+/*
  * Derives the length of the encoded base64 string from the length of the
  * original string.
  */
@@ -16,25 +16,35 @@ uint32_t encodedlen(uint32_t len) {
     return newlen;
 }
 
-/**
+/*
  * Encodes an unencoded group (containing exactly three characters) into
  * base64. The resulting group contains exactly four characters.
  */
-void encodegroup(const uint8_t *input, uint8_t *output) {
+void encode_group(const uint8_t *input, uint8_t *output) {
     output[0] = input[0] >> 0x02;
     output[1] = ((input[0] & 0x03) << 0x04) | ((input[1] & 0xf0) >> 0x04);
     output[2] = ((input[1] << 0x02) & 0x3f) | (input[2] >> 0x06);
     output[3] = input[2] & 0x3f;
 }
 
+/*
+ * Decodes a base64 encoded group (containing exactly four characters) into
+ * the original bytes. The resulting group contains exactly four characters.
+ */
+void decode_group(const uint8_t *input, uint8_t *output) {
+    output[0] = input[0] >> 0x02;
+    output[1] = ((input[0] & 0x03) << 0x04) | ((input[1] & 0xf0) >> 0x04);
+    output[2] = ((input[1] << 0x02) & 0x3f) | (input[2] >> 0x06);
+    output[3] = input[2] & 0x3f;
+}
 
-/**
+/*
  * Encodes an unencoded group containing one or two characters into base64.
  * The resulting group will still only contain four characters. For all of the
  * characters that can not be derived from the original bytes a padding
  * character will be inserted.
  */
-void encoderemainder(const uint8_t *input, uint32_t inputlen, uint8_t *output) {
+void encode_remainder(const uint8_t *input, uint32_t inputlen, uint8_t *output) {
     output[0] = input[0] >> 0x02;
     output[1] = (input[0] & 0x03) << 0x04;
     if (inputlen == 1) {
@@ -47,6 +57,20 @@ void encoderemainder(const uint8_t *input, uint32_t inputlen, uint8_t *output) {
     }
 }
 
+void to_digit(uint8_t *byte) {
+    if (*byte < 26)
+        *byte += 'A';
+    else if (*byte < 52)
+        *byte = 'a' + (*byte - 26);
+    else if (*byte < 62)
+        *byte = '0' + (*byte - 52);
+    else if (*byte == 62)
+        *byte = '+';
+    else if (*byte == 63)
+        *byte = '/';
+    else
+        *byte = '=';
+}
 
 uint8_t *base64encode(const uint8_t *input, uint32_t length) {
     
@@ -84,9 +108,9 @@ uint8_t *base64encode(const uint8_t *input, uint32_t length) {
          * resulting array;
          */
         if (lim == 3)
-            encodegroup(original, encoded);
+            encode_group(original, encoded);
         else
-            encoderemainder(original, lim, encoded);
+            encode_remainder(original, lim, encoded);
         for (int j = 0; j < 4; ++j)
             base64[k++] = encoded[j];
     }
@@ -101,6 +125,11 @@ uint8_t *base64encode(const uint8_t *input, uint32_t length) {
      * Delimiting the base64 string;
      */
     base64[newlen] = 0x00;
+    for (int i = 0; i < newlen; ++i)
+        to_digit(&base64[i]);
     return base64;
 }
 
+uint8_t *base64decode(const uint8_t *encoded, int length) {
+
+}
