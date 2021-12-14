@@ -94,7 +94,7 @@ void encode_group(const uint8_t *input, uint32_t input_length, uint8_t *output) 
 
 /*
  * Decodes a base64 encoded group (containing exactly four characters) into
- * the original bytes. The resulting group contains exactly four characters.
+ * the original bytes. The resulting group contains exactly three characters.
  */
 void decode_group(const uint8_t *input, uint8_t *output) {
     output[0] = (input[0] << 2) | (input[1] >> 4);
