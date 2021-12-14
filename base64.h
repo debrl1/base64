@@ -15,25 +15,25 @@ uint32_t encodedlen(uint32_t len);
  * Returns the amount of values that will be in the array that will be returned
  * once a string with length `len` is decoded from base64.
  */
-uint32_t decodedlen(uint32_t len);
+uint32_t decodedlen(const uint8_t *input, uint32_t len);
 
 /**
  * Encodes the given array of values into a base64 string.
  */
-uint8_t *base64encode(const uint8_t *input, unsigned int length);
+uint8_t *base64encode(const uint8_t *input, uint32_t length);
 
 /**
  * Decodes the given base64 string into the original array of values.
  *
- * @param encoded
- * The base64 encoded string.
+ * @param input
+ * The base64 input string.
  *
  * @param length
- * The length of the base64 encoded string.
+ * The length of the base64 input string.
  *
  * @returns
  * A pointer to the array holding the decoded values will be returned.
  */
-uint8_t *base64decode(const uint8_t *encoded, int length);
+uint8_t *base64decode(const uint8_t *input, uint32_t length);
 
 #endif //B64_BASE64_H
