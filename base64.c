@@ -5,22 +5,27 @@
 
 #define PADDING 0x40
 
+
+static const char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+
+
 /*
  * Derives the length of the encoded base64 string from the length of the
  * original string.
  */
-uint32_t encodedlen(uint32_t len) {
+uint32_t base64_elen(uint32_t len) {
     uint32_t newlen = (len / 3) * 4;
     if (len % 3 != 0)
         newlen += 4;
     return newlen;
 }
 
+
 /*
  * Derives the length of the original (unencoded) string from the length of
  * the encoded string.
  */
-uint32_t decodedlen(const uint8_t *input, uint32_t len) {
+uint32_t base64_dlen(const uint8_t *input, uint32_t len) {
     uint8_t padding = 0;
     for (uint32_t i = len - 1;; --i) {
         if (input[i] == PADDING)
@@ -31,41 +36,27 @@ uint32_t decodedlen(const uint8_t *input, uint32_t len) {
     return ((len / 4) * 3) - padding;
 }
 
+
 /*
  * Sets the 6-bit value equal to its base64 equivalent.
  */
 void to_digit(uint8_t *digit) {
-    if (*digit < 26)
-        *digit += 'A';
-    else if (*digit < 52)
-        *digit += 'a' - 26;
-    else if (*digit < 62)
-        *digit += '0' - 52;
-    else if (*digit == 62)
-        *digit = '+';
-    else if (*digit == 63)
-        *digit = '/';
-    else
-        *digit = '=';
+    *digit = alphabet[*digit];
 }
+
 
 /*
  * Sets the base64 value equal to its 6-bit index.
  */
 void from_digit(uint8_t *digit) {
-    if (('A' <= *digit) && (*digit <= 'Z'))
-        *digit -= 'A';
-    else if (('a' <= *digit) && (*digit <= 'z'))
-        *digit = *digit - 'a' + 26;
-    else if (('0' <= *digit) && (*digit <= '9'))
-        *digit = *digit - '0' + 52;
-    else if (*digit == '+')
-        *digit = 62;
-    else if (*digit == '/')
-        *digit = 63;
-    else
-        *digit = PADDING;
+    for (int i = 0; i < 65; ++i) {
+        if (*digit == alphabet[i]) {
+            *digit = i;
+            return;
+        }
+    }
 }
+
 
 /*
  * Encodes a group of values into base 64.
@@ -92,6 +83,7 @@ void encode_group(const uint8_t *input, uint32_t input_length, uint8_t *output) 
     }
 }
 
+
 /*
  * Decodes a base64 encoded group (containing exactly four characters) into
  * the original bytes. The resulting group contains exactly three characters.
@@ -102,13 +94,14 @@ void decode_group(const uint8_t *input, uint8_t *output) {
     output[2] = (input[2] << 6) | input[3];
 }
 
-uint8_t *base64encode(const uint8_t *input, uint32_t length) {
+
+uint8_t *base64_encode(const uint8_t *input, uint32_t length) {
     
     /*
      * Calculating the length of the array that will be returned and 
      * allocating memory for it; 
      */
-    uint32_t newlen = encodedlen(length);
+    uint32_t newlen = base64_elen(length);
     uint32_t k = 0;
     uint8_t *base64 = (uint8_t *) malloc(sizeof(uint8_t) * (newlen + 1));
 
@@ -178,7 +171,7 @@ uint8_t *base64decode(const uint8_t *input, uint32_t length) {
      * Calculating the length of the decoded string and allocating memory
      * for it;
      */
-    uint32_t decoded_length = decodedlen(copy,  length);
+    uint32_t decoded_length = base64_dlen(copy, length);
     uint8_t *decoded = (uint8_t *) malloc(sizeof(uint8_t) * (decoded_length + 1));
     uint32_t decoded_index = 0;
 
@@ -211,11 +204,6 @@ uint8_t *base64decode(const uint8_t *input, uint32_t length) {
     free(copy);
     free(encoded_group);
     free(decoded_group);
-
-    /*
-     * Delimiting the string;
-     */
-    decoded[decoded_length] = '\0';
 
     return decoded;
 }
