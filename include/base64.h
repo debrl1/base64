@@ -3,6 +3,7 @@
 #define B64_BASE64_H
 
 #include <stdint.h>
+#include <stddef.h>
 
 
 /**
@@ -13,13 +14,13 @@
  * characters. Something which is also the case for an original array of three
  * characters. In both cases, this method will return 4.
  */
-uint32_t base64_elen(uint32_t len);
+size_t base64_elen(size_t len);
 
 /**
  * Returns the amount of values that will be in the array that will be returned
  * once a string with length `len` is decoded from base64.
  */
-uint32_t base64_dlen(const uint8_t *input);
+size_t base64_dlen(const uint8_t *input);
 
 /**
  * Encodes the given array of values into a base64 string. The method will
@@ -28,7 +29,7 @@ uint32_t base64_dlen(const uint8_t *input);
  * To determine the length of the array that is returned, one can call
  * `base64_elen` with the length of the original string.
  */
-uint8_t *base64_encode(const uint8_t *input, uint32_t length);
+uint8_t *base64_encode(const uint8_t *input, size_t length);
 
 /**
  * Decodes the given base64 string into the original array of values. The
@@ -37,6 +38,6 @@ uint8_t *base64_encode(const uint8_t *input, uint32_t length);
  * To determine the length of the array that is returned, one can call
  * `base64_dlen` with the encoded string and the length of said string.
  */
-uint8_t *base64decode(const uint8_t *input, uint32_t length);
+uint8_t *base64_decode(const uint8_t *input);
 
 #endif //B64_BASE64_H
