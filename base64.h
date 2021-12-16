@@ -19,7 +19,7 @@ uint32_t base64_elen(uint32_t len);
  * Returns the amount of values that will be in the array that will be returned
  * once a string with length `len` is decoded from base64.
  */
-uint32_t base64_dlen(const uint8_t *input, uint32_t len);
+uint32_t base64_dlen(const uint8_t *input);
 
 /**
  * Encodes the given array of values into a base64 string. The method will
